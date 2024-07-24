@@ -1,6 +1,6 @@
 var { get } = require("axios");
 
-module.exports = function(api, event) {
+module.exports = function (api, event) {
   if (!event.type === "message_reply") return;
   var { config, replies } = global;
   var url = config.CASSURL;
@@ -8,7 +8,7 @@ module.exports = function(api, event) {
   var sender = Number(event.senderID);
   var messageID = String(event.messageID);
   var replyID = String(
-    event.messageReply ? event.messageReply.messageID : null
+    event.messageReply ? event.messageReply.messageID : null,
   );
   var body = String(event.body);
 
@@ -18,48 +18,50 @@ module.exports = function(api, event) {
   var { author, result: messageReply } = replies.get(replyID);
 
   if (author !== sender) return;
+  if (!messageReply) return;
+  messageReply.body = "";
 
   get(xurl, {
-    params: Object.assign({}, event, { messageReply: messageReply })
+    params: Object.assign({}, event, { messageReply: messageReply }),
   }).then(
-    function(res) {
+    function (res) {
       var {
         result: { body },
         status: estatus,
-        result
+        result,
       } = res.data;
 
       if (estatus === "fail") return;
 
       //var i = api.sendMessage(body, event.threadID, event.messageID);
-      var i = new Promise(function(resolve, reject) {
+      var i = new Promise(function (resolve, reject) {
         api.sendMessage(
           body,
           event.threadID,
-          function(err, info) {
+          function (err, info) {
             if (err) {
               return reject(err);
             }
             resolve(info);
           },
-          event.messageID
+          event.messageID,
         );
       });
 
       i.then(
-        function(info) {
+        function (info) {
           replies.set(info.messageID, {
             result,
-            author: sender
+            author: sender,
           });
         },
-        function(err) {
+        function (err) {
           console.error(err);
-        }
+        },
       );
     },
-    function(err) {
+    function (err) {
       console.error(err);
-    }
+    },
   );
 };
