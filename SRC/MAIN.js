@@ -10,6 +10,7 @@ var login = require("../LIB/LOGIN");
 var utils = require("../LIB/UTILS");
 var express = require("express");
 var app = express();
+var axios = require("axios");
 
 app.get("/", function (_, res) {
   res.send(
@@ -27,6 +28,19 @@ var handleMessage = require("../LIB/HANDLE/MESSAGE");
 var handleReply = require("../LIB/HANDLE/REPLY");
 
 var start = function () {
+  axios
+    .get(global.config.CASSURL)
+    .then(function (res) {
+      console.log(
+        "Using CASSURL: " + global.config.CASSURL + " (" + res.status + ")",
+      );
+    })
+    .catch(function (err) {
+      console.error(
+        "The CASSURL is invalid or not responding! Please check your CASSURL in LIB/CONF.json, heres: " +
+          global.config.CASSURL,
+      );
+    });
   utils.getState().then((appState) => {
     login(
       {
