@@ -8,6 +8,18 @@ process.on("uncaughtException", function (err) {
 var { readJSONSync } = require("fs-extra");
 var login = require("../LIB/LOGIN");
 var utils = require("../LIB/UTILS");
+var express = require("express");
+var app = express();
+
+app.get("/", function (_, res) {
+  res.send(
+    "If you can see this, this means the server is running, but you cannot make sure it it's working",
+  );
+});
+
+app.listen(3000, function () {
+  console.log("Port: 3000");
+});
 
 global.config = readJSONSync(`${__dirname}/../LIB/CONF.json`);
 global.replies = new Map();
